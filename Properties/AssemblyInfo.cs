@@ -25,6 +25,6 @@ public static class Info
 	public const string name = "efool-multiclick";
 	public const string title = "efool's Multiclick";
 	public const string desc = "efool's multi-click mod for Subnautica";
-	public const string version = "0.0.2";
+	public const string version = "0.0.3";
 }
 }
