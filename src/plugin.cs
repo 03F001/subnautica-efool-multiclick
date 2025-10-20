@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
-
-using BepInEx.Logging;
 
 using HarmonyLib;
 
 using UnityEngine;
-using UnityEngine.InputSystem;
+
+using Nautilus.Handlers;
 
 namespace org.efool.subnautica.multiclick {
 
@@ -19,16 +17,13 @@ namespace org.efool.subnautica.multiclick {
 [BepInEx.BepInDependency("com.snmodding.nautilus")]
 public class Plugin : BepInEx.BaseUnityPlugin
 {
-	public static ManualLogSource log;
+	public static BepInEx.Logging.ManualLogSource log;
 	public static ConfigGlobal config { get; private set;}
 
 	private void Awake()
 	{
 		log = Logger;
-		Patch.inputAltClick.Enable();
 		config = Nautilus.Handlers.OptionsPanelHandler.RegisterModOptions<ConfigGlobal>();
-		config.bind();
-		config.OnFinishedLoading += (_0, _1) => config.bind();
 		Nautilus.Handlers.ConsoleCommandsHandler.RegisterConsoleCommands(typeof(Commands));
 		new HarmonyLib.Harmony(org.efool.subnautica.multiclick.Info.FQN).PatchAll();
 	}
@@ -42,23 +37,6 @@ public class ConfigGlobal : Nautilus.Json.ConfigFile
 
 	[Nautilus.Options.Attributes.Slider("Click interval", 0.0f, 0.2f, Step = 0.005f, DefaultValue = 0.05f, Format = "{0:F2}", Tooltip="Minimal seconds between multi-clicks")]
 	public float timeClickInterval = 0.05f;
-
-	[Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-	public string inputAltClick;
-
-	public void bind()
-	{
-		if ( string.IsNullOrEmpty(inputAltClick) )
-			return;
-
-		try {
-			Patch.inputAltClick.ApplyBindingOverride(inputAltClick);
-		}
-		catch ( Exception ex ) {
-			Plugin.log.LogError($"Config 'inputAltClick' has invalid InputAction: {inputAltClick}");
-			Plugin.log.LogError(ex);
-		}
-	}
 }
 
 public static class Commands
@@ -68,15 +46,22 @@ public static class Commands
 
 [HarmonyPatch(typeof(GUIHand), "OnUpdate")]
 public static class Patch
-{
-	public static InputAction inputAltClick = new InputAction(name: "altClick", type: InputActionType.PassThrough, binding: "<Keyboard>/leftAlt");
+	{
+		public static GameInput.Button inputAltClick = Nautilus.Handlers.EnumHandler.AddEntry<GameInput.Button>("Alternate click")
+			.CreateInput()
+			.WithCategory(Info.title)
+			.WithKeyboardBinding("<Keyboard>/leftAlt")
+			//.WithControllerBinding("<Gamepad>/leftTrigger") // there's no good button for this. Let users manually bind for gamepad
+			.AvoidConflicts()
+			.SetBindable();
+
 	public static float _timeNextClick = Time.time;
 
 	public static bool canClick(bool down, bool held)
 	{
 		var now = Time.time;
 		var nextClickAvailable = now >= _timeNextClick;
-		var singleClick = Plugin.config.useSingleClick ^ inputAltClick.IsPressed();
+		var singleClick = Plugin.config.useSingleClick ^ GameInput.GetButtonHeld(inputAltClick);
 
 		var ret = (singleClick & down) | (!singleClick & held & nextClickAvailable);
 		if ( ret )

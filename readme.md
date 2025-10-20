@@ -13,31 +13,18 @@
 - Tobey's BepInEx Pack v5
 	- [Nexus Mods](https://www.nexusmods.com/subnautica/mods/1108)
 	- [Github](https://github.com/toebeann/BepInEx.Subnautica)
-- Nautilus v1.0.0-pre.43 (or later)
+- Nautilus v1.0.0-pre.46 (or later)
 	- [Nexus Mods](https://www.nexusmods.com/subnautica/mods/1262)
 	- [Github](https://github.com/SubnauticaModding/Nautilus)
 
 # Installation
 
 - Install Tobey's BepInEx Pack v5
-- Install Nautilus v1.0.0-pre.43 (or later)
+- Install Nautilus v1.0.0-pre.46 (or later)
 - Extract `efool-multiclick_#.#.#.zip` to `BepInEx/plugins`
 	- `[game]/BepInEx/plugins/efool-multiclick/efool-multiclick.dll`
 
 Note: `[game]` is the directory containing `Subnautica.exe`
-
-# Custom Keybind
-
-Keybinds can no longer be configured in the options menu since Subnautica patch Oct-2025. Instead they must now be configured by manually editing the mod config file:
-
-1. Open `[game]/BepInEx/config/efool-multiclick/config.json`
-2. Add/edit:
-
-| Key             | Default value        |
-| --------------- | -------------------- |
-| `inputAltClick` | `<Keyboard>/leftAlt` |
-
-3. Restart game to refresh configuration
 
 # Console Commands
 
@@ -48,7 +35,7 @@ Keybinds can no longer be configured in the options menu since Subnautica patch 
 # Known Issues
 
 - Some actions like building and editing labels work better with single-click
-	- Workaround: use alternate click modifier key
+	- Workaround: use alternate click modifier button
 
 # Other Mods
 
